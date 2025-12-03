@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Firma Digital – RSA + SHA-256</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+<a href="index.html" class="back">← Volver</a>
+
+<div class="module">
+  <h1>Firma Digital</h1>
+
+  <p class="info">
+    La firma digital garantiza autenticidad e integridad del mensaje usando RSA con SHA-256.
+    Se generan dos claves: <b>pública</b> (para verificar) y <b>privada</b> (para firmar).
+  </p>
+
+  <button onclick="gen()">Generar Claves</button>
+  <button onclick="showPublic()">Ver Clave Pública</button>
+  <button onclick="showPrivate()">Ver Clave Privada</button>
+
+  <h3>Mensaje a firmar</h3>
+  <textarea id="msg"></textarea>
+
+  <button onclick="sign()">Firmar Mensaje</button>
+  <button onclick="verify()">Verificar Firma</button>
+
+  <h3>Resultado:</h3>
+  <textarea id="result" readonly></textarea>
+
+  <h3>Terminal:</h3>
+  <pre id="log" class="terminal"></pre>
+</div>
+
+<script>
+let pair = {}; // Guarda las claves
+
+function log(msg) {
+  const t = document.getElementById("log");
+  t.textContent += "> " + msg + "\n";
+}
+
+/* -----------------------
+   GENERAR PAR DE CLAVES
+------------------------*/
+async function gen() {
+  log("Generando claves RSA-2048…");
+
+  pair = await crypto.subtle.generateKey(
+    {
+      name: "RSASSA-PKCS1-v1_5",
+      modulusLength: 2048,
+      publicExponent: new Uint8Array([1, 0, 1]),
+      hash: "SHA-256"
+    },
+    true,
+    ["sign", "verify"]
+  );
+
+  log("Claves generadas correctamente.");
+}
+
+/* -----------------------
+   EXPORTAR CLAVE PÚBLICA
+------------------------*/
+async function showPublic() {
+  if (!pair.publicKey) return log("Primero genera las claves.");
+
+  const exported = await crypto.subtle.exportKey("spki", pair.publicKey);
+  const b64 = btoa(String.fromCharCode(...new Uint8Array(exported)));
+
+  document.getElementById("result").value = b64;
+  log("Clave pública mostrada.");
+}
+
+/* -----------------------
+   EXPORTAR CLAVE PRIVADA
+------------------------*/
+async function showPrivate() {
+  if (!pair.privateKey) return log("Primero genera las claves.");
+
+  const exported = await crypto.subtle.exportKey("pkcs8", pair.privateKey);
+  const b64 = btoa(String.fromCharCode(...new Uint8Array(exported)));
+
+  document.getElementById("result").value = b64;
+  log("Clave privada mostrada.");
+}
+
+/* -----------------------
+         FIRMAR
+------------------------*/
+async function sign() {
+  if (!pair.privateKey) return log("Primero genera las claves.");
+
+  const msg = document.getElementById("msg").value;
+  if (!msg) return log("Escribe un mensaje.");
+
+  const encoded = new TextEncoder().encode(msg);
+
+  const signature = await crypto.subtle.sign(
+    "RSASSA-PKCS1-v1_5",
+    pair.privateKey,
+    encoded
+  );
+
+  const b64 = btoa(String.fromCharCode(...new Uint8Array(signature)));
+  document.getElementById("result").value = b64;
+
+  log("Mensaje firmado correctamente.");
+}
+
+/* -----------------------
+         VERIFICAR
+------------------------*/
+async function verify() {
+  if (!pair.publicKey) return log("Primero genera las claves.");
+
+  const msg = document.getElementById("msg").value;
+  const sig64 = document.getElementById("result").value;
+
+  if (!msg) return log("Escribe un mensaje.");
+  if (!sig64) return log("No hay firma para verificar.");
+
+  const data = new TextEncoder().encode(msg);
+  const sig = Uint8Array.from(atob(sig64), c => c.charCodeAt(0));
+
+  const ok = await crypto.subtle.verify(
+    "RSASSA-PKCS1-v1_5",
+    pair.publicKey,
+    sig,
+    data
+  );
+
+  log(ok ? "✔ La firma es válida." : "✘ La firma NO es válida.");
+}
+</script>
+
+</body>
+</html>

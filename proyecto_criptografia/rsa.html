@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>RSA – Cifrado Asimétrico</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+<a href="index.html" class="back">← Volver</a>
+
+<div class="module">
+
+  <h1>RSA</h1>
+  <h3>Cifrado Asimétrico</h3>
+
+  <p class="info">
+    RSA utiliza un par de claves: <b>pública</b> para cifrar y <b>privada</b> para descifrar.
+    Esto permite enviar mensajes seguros sin compartir la clave privada.
+  </p>
+
+  <button onclick="gen()">Generar Claves</button>
+  <button onclick="showPublic()">Ver Clave Pública</button>
+  <button onclick="showPrivate()">Ver Clave Privada</button>
+
+  <h3>Texto a cifrar</h3>
+  <textarea id="text"></textarea>
+
+  <button onclick="encrypt()">Cifrar</button>
+  <button onclick="decrypt()">Descifrar</button>
+
+  <h3>Resultado:</h3>
+  <textarea id="result" readonly></textarea>
+
+  <h3>Terminal:</h3>
+  <pre id="log" class="terminal"></pre>
+
+</div>
+
+
+<script>
+let keys = {};  // Aquí guardamos las claves RSA
+
+function log(msg) {
+  document.getElementById("log").textContent += "> " + msg + "\n";
+}
+
+/* -------------------------
+     GENERAR PAR DE CLAVES
+--------------------------*/
+async function gen() {
+  log("Generando claves RSA-2048...");
+
+  keys = await crypto.subtle.generateKey(
+    {
+      name: "RSA-OAEP",
+      modulusLength: 2048,
+      publicExponent: new Uint8Array([1, 0, 1]),
+      hash: "SHA-256"
+    },
+    true,
+    ["encrypt", "decrypt"]
+  );
+
+  log("Claves generadas correctamente.");
+}
+
+/* -------------------------
+      MOSTRAR PÚBLICA
+--------------------------*/
+async function showPublic() {
+  if (!keys.publicKey) return log("Primero genera las claves.");
+
+  const exported = await crypto.subtle.exportKey("spki", keys.publicKey);
+  const b64 = btoa(String.fromCharCode(...new Uint8Array(exported)));
+
+  document.getElementById("result").value = b64;
+  log("Clave pública exportada.");
+}
+
+/* -------------------------
+      MOSTRAR PRIVADA
+--------------------------*/
+async function showPrivate() {
+  if (!keys.privateKey) return log("Primero genera las claves.");
+
+  const exported = await crypto.subtle.exportKey("pkcs8", keys.privateKey);
+  const b64 = btoa(String.fromCharCode(...new Uint8Array(exported)));
+
+  document.getElementById("result").value = b64;
+  log("Clave privada exportada.");
+}
+
+/* -------------------------
+           CIFRAR
+--------------------------*/
+async function encrypt() {
+  if (!keys.publicKey) return log("Primero genera las claves.");
+
+  const txt = document.getElementById("text").value;
+  if (!txt) return log("Escribe un mensaje.");
+
+  const data = new TextEncoder().encode(txt);
+
+  const encrypted = await crypto.subtle.encrypt(
+    { name: "RSA-OAEP" },
+    keys.publicKey,
+    data
+  );
+
+  const b64 = btoa(String.fromCharCode(...new Uint8Array(encrypted)));
+  document.getElementById("result").value = b64;
+
+  log("Mensaje cifrado.");
+}
+
+/* -------------------------
+          DESCIFRAR
+--------------------------*/
+async function decrypt() {
+  if (!keys.privateKey) return log("Primero genera las claves.");
+
+  const enc64 = document.getElementById("result").value;
+  if (!enc64) return log("No hay texto cifrado.");
+
+  const encryptedBytes = Uint8Array.from(atob(enc64), c => c.charCodeAt(0));
+
+  try {
+    const decrypted = await crypto.subtle.decrypt(
+      { name: "RSA-OAEP" },
+      keys.privateKey,
+      encryptedBytes
+    );
+
+    const txt = new TextDecoder().decode(decrypted);
+    document.getElementById("result").value = txt;
+
+    log("Mensaje descifrado correctamente.");
+  } catch {
+    log("Error: No se pudo descifrar. ¿Clave incorrecta o mensaje alterado?");
+  }
+}
+</script>
+
+</body>
+</html>

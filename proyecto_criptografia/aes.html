@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>AES – Cifrado Simétrico</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="libs/crypto-js.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
+</head>
+<body>
+
+<a href="index.html" class="back">← Volver</a>
+
+<div class="module">
+  <h1>AES</h1>
+  <h3>Cifrado Simétrico</h3>
+
+  <p class="info">
+    AES es el estándar de cifrado moderno usado por gobiernos y bancos. 
+    Usa la misma clave para cifrar y descifrar.
+  </p>
+
+  <label>Texto</label>
+  <textarea id="text"></textarea>
+
+  <label>Clave</label>
+  <input id="key" type="text">
+
+  <button onclick="encrypt()">Cifrar</button>
+  <button onclick="decrypt()">Descifrar</button>
+
+  <h3>Resultado:</h3>
+  <textarea id="result" readonly></textarea>
+
+  <h3>Terminal:</h3>
+  <pre id="log" class="terminal"></pre>
+</div>
+
+<script>
+function log(msg) {
+  const t = document.getElementById("log");
+  t.textContent += "> " + msg + "\n";
+}
+
+function encrypt() {
+  let text = document.getElementById("text").value;
+  let key  = document.getElementById("key").value;
+
+  if (!text || !key) { log("ERROR: faltan datos."); return; }
+
+  let encrypted = CryptoJS.AES.encrypt(text, key).toString();
+  document.getElementById("result").value = encrypted;
+
+  log("Cifrado completado.");
+}
+
+function decrypt() {
+  let enc = document.getElementById("result").value;
+  let key = document.getElementById("key").value;
+
+  try {
+    let bytes = CryptoJS.AES.decrypt(enc, key);
+    let dec = bytes.toString(CryptoJS.enc.Utf8);
+
+    if (!dec) throw "Clave incorrecta";
+
+    document.getElementById("result").value = dec;
+    log("Texto descifrado correctamente.");
+
+  } catch {
+    log("ERROR: clave incorrecta o texto malformado.");
+  }
+}
+</script>
+
+</body>
+</html>

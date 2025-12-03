@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <title>SHA-256 – Verificación de Integridad</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+</head>
+<body>
+
+<a href="index.html" class="back">← Volver</a>
+
+<div class="module">
+  <h1>SHA-256</h1>
+  <h3>Verificación de integridad</h3>
+
+  <p class="info">
+    Genera un <b>hash original</b> del texto y luego puedes volver a calcular el hash
+    para comprobar si el contenido ha sido alterado.
+  </p>
+
+  <label>Texto</label>
+  <textarea id="text" placeholder="Escribe o pega aquí el texto que quieras hashear"></textarea>
+
+  <div style="margin:12px 0;">
+    <button onclick="generateOriginal()">Generar Hash Original</button>
+    <button onclick="computeCurrent()">Generar Hash Actual</button>
+    <button onclick="compare()">Comparar Hashes</button>
+    <button onclick="copyResult()">Copiar Resultado</button>
+    <button onclick="clearAll()">Limpiar</button>
+  </div>
+
+  <h3>Hash Original</h3>
+  <textarea id="originalHash" readonly></textarea>
+
+  <h3>Hash Actual</h3>
+  <textarea id="currentHash" readonly></textarea>
+
+  <h3>Estado</h3>
+  <pre id="log" class="terminal"></pre>
+
+</div>
+
+<script>
+let original = "";
+
+/* Terminal */
+function log(msg) {
+  const t = document.getElementById("log");
+  t.textContent += "> " + msg + "\n";
+  t.scrollTop = t.scrollHeight;
+}
+
+/* SHA256 */
+function sha256Of(text) {
+  return CryptoJS.SHA256(text).toString(CryptoJS.enc.Hex);
+}
+
+/* Hash original */
+function generateOriginal() {
+  const txt = document.getElementById("text").value;
+  if (!txt) return log("ERROR: ingresa texto.");
+
+  original = sha256Of(txt);
+  document.getElementById("originalHash").value = original;
+  log("Hash original generado.");
+}
+
+/* Hash actual */
+function computeCurrent() {
+  const txt = document.getElementById("text").value;
+  if (!txt) return log("ERROR: ingresa texto.");
+
+  const cur = sha256Of(txt);
+  document.getElementById("currentHash").value = cur;
+  log("Hash actual generado.");
+}
+
+/* Comparar */
+function compare() {
+  if (!original) return log("ERROR: primero genera el hash original.");
+
+  const cur = document.getElementById("currentHash").value || sha256Of(document.getElementById("text").value);
+
+  document.getElementById("currentHash").value = cur;
+
+  if (original === cur) {
+    log("✔ INTEGRIDAD: El texto NO ha sido modificado.");
+    flashStatus(true);
+  } else {
+    log("✘ ALTERACIÓN DETECTADA: El texto fue modificado.");
+    flashStatus(false);
+  }
+}
+
+/* Copiar */
+function copyResult() {
+  const cur = document.getElementById("currentHash").value;
+  const orig = document.getElementById("originalHash").value;
+  const toCopy = cur || orig;
+
+  if (!toCopy) return log("Nada que copiar.");
+
+  navigator.clipboard.writeText(toCopy)
+    .then(() => log("Hash copiado al portapapeles."))
+    .catch(() => log("No se pudo copiar automáticamente."));
+}
+
+/* Limpiar todo */
+function clearAll() {
+  original = "";
+  document.getElementById("text").value = "";
+  document.getElementById("originalHash").value = "";
+  document.getElementById("currentHash").value = "";
+  document.getElementById("log").textContent = "";
+  log("Pantalla limpiada.");
+}
+
+/* Efecto visual en la tarjeta (verde o rojo) */
+function flashStatus(ok) {
+  const mod = document.querySelector(".module");
+  mod.style.boxShadow = ok
+    ? "0 0 25px rgba(0,255,120,0.7)"
+    : "0 0 25px rgba(255,0,0,0.7)";
+
+  setTimeout(() => {
+    mod.style.boxShadow = "";
+  }, 800);
+}
+</script>
+
+</body>
+</html>

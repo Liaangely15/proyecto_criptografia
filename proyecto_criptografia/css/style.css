@@ -1,0 +1,151 @@
+/* ---- ESTILO GENERAL HACKER NEON ---- */
+body {
+  background: #000;
+  color: #00ffbf;
+  font-family: 'Courier New', monospace;
+  padding: 0;
+  margin: 0;
+  text-align: center;
+}
+
+h1, h2, h3, h4, h5 {
+  text-shadow: 0 0 10px #00ff88;
+}
+
+a {
+  color: #00ffbf;
+  text-decoration: none;
+}
+
+.scanline {
+  opacity: 0.8;
+  letter-spacing: 3px;
+}
+
+/* ---- HEADER ---- */
+header {
+  padding: 25px;
+}
+
+/* ---- GRID DEL MENÚ PRINCIPAL ---- */
+.grid {
+  display: grid;
+  gap: 20px;
+  grid-template-columns: repeat(2, 1fr);
+  width: 90%;
+  margin: auto;
+  margin-top: 40px;
+}
+
+/* ---- TARJETAS DEL MENÚ ---- */
+.card {
+  padding: 30px;
+  border: 2px solid #00ff88;
+  border-radius: 15px;
+  background: rgba(0, 20, 0, 0.4);
+  box-shadow: 0 0 20px rgba(0,255,120,0.4);
+  transition: 0.3s;
+}
+
+.card:hover {
+  transform: scale(1.03);
+  box-shadow: 0 0 30px #00ff88;
+}
+
+/* ---- BOTÓN DE VOLVER ---- */
+.back {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  padding: 8px 15px;
+  background: #00ff88;
+  color: #000;
+  font-weight: bold;
+  border-radius: 8px;
+  text-shadow: none;
+  box-shadow: 0 0 10px #00ff88;
+}
+
+.back:hover {
+  box-shadow: 0 0 15px #00ff88;
+}
+
+/* ---- MÓDULO INDIVIDUAL ---- */
+.module {
+  width: 80%;
+  margin: 100px auto 30px auto;
+  padding: 30px;
+  background: rgba(0, 20, 0, 0.4);
+  border: 2px solid #00ff88;
+  border-radius: 12px;
+  box-shadow: 0 0 25px rgba(0,255,120,0.4);
+}
+
+/* ---- INFO/EXPLICACIONES ---- */
+.info {
+  width: 80%;
+  margin: 15px auto 25px auto;
+  color: #aaffdd;
+  font-size: 16px;
+  text-shadow: 0 0 5px #00ff88;
+}
+
+/* ---- INPUTS ---- */
+textarea, input {
+  width: 90%;
+  padding: 12px;
+  margin: 12px auto;
+  background: #000;
+  color: #00ffbf;
+  border: 1px solid #00ff88;
+  border-radius: 8px;
+  box-shadow: 0 0 12px rgba(0,255,120,0.4);
+  font-family: 'Courier New', monospace;
+}
+
+textarea {
+  min-height: 120px;
+}
+
+/* ---- BOTONES ---- */
+button {
+  padding: 12px 25px;
+  background: #00ff88;
+  color: #000;
+  font-weight: bold;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  margin: 8px;
+  box-shadow: 0 0 10px #00ff88;
+  transition: 0.2s;
+}
+
+button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 15px #00ff88;
+}
+
+/* ---- TERMINAL ---- */
+.terminal {
+  text-align: left;
+  width: 90%;
+  margin: 10px auto;
+  padding: 15px;
+  background: rgba(0,0,0,0.7);
+  border: 1px solid #00ff88;
+  box-shadow: inset 0 0 15px rgba(0,255,120,0.4);
+  border-radius: 8px;
+  min-height: 120px;
+  color: #00ff88;
+  overflow-y: auto;
+}
+
+.terminal::-webkit-scrollbar {
+  width: 8px;
+}
+
+.terminal::-webkit-scrollbar-thumb {
+  background: #00ff88;
+  border-radius: 4px;
+}
